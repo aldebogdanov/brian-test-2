@@ -16,4 +16,4 @@ At first I found out what result do we expect (161700). It was like this:
 ![formulas-2](https://github.com/user-attachments/assets/09fb012f-f72b-4d13-b9f6-37efd2662e4b)
 
 After that I implemented and checked four different Missionary approaches to solve a task.
-Feel free to look on code, tests and simple benchmark [here](https://github.com/aldebogdanov/brian-test-2/blob/main/src/brian_test_2/core.clj).
+Feel free to look on code, tests and simple benchmark with my thoughts [here](https://github.com/aldebogdanov/brian-test-2/blob/main/src/brian_test_2/core.clj).
