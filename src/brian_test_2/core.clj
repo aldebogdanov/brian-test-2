@@ -44,7 +44,7 @@
 
 (defn transducer-add
 
-  "Transducing outer flow summarising inner ones.
+  "Transducing outer flow adding up inner ones.
 
   Pros: one of fastest
   Cons: no... maybe a lack of elegance"
@@ -72,7 +72,7 @@
 
 (defn reducer
 
-  "Reducing outer flow by summarising inner ones
+  "Reducing outer flow by adding up inner ones
 
   Pros: ties for name of fastest with `transducer-add`, same logic
         under the hood
