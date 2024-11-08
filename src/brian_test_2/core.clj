@@ -1,7 +1,7 @@
 (ns brian-test-2.core
   (:gen-class)
   (:require
-    [hyperfiddle.rcf :refer [tests tap %]]
+    [hyperfiddle.rcf :refer [tests]]
     [missionary.core :as m]))
 
 
@@ -16,10 +16,10 @@
 
 (defn math
 
-  "Strict mathematical solution.
+  "Strict mathematical solution. Out of competition.
 
-  Pros: fastest, complexity O(1), known from ancient times
-  Cons: it's easy to get confused, not a missionary"
+  Pros: fastest, complexity O(1), known since ancient times
+  Cons: it's easy to get confused, not a Missionary"
 
   [n]
   (let [k (dec n)]
@@ -30,25 +30,39 @@
              2)))))
 
 
-(defn best
+(defn direct-forks
+
+  "Most straightforward way.
+
+  Pros: intuitive
+  Cons: slowest of all, I guess such forks not use all benefits
+        of parallelism or opposite have too much overhead on every fork"
+
   []
-  (m/? (m/ap (loop [s 0]
-               (let [f (m/?> ##Inf (flow-of-flows))]
-                 (m/amb s
-                        (recur (m/reduce + s f))))))))
+  (m/? (m/reduce + (m/ap (m/?> (m/?> (flow-of-flows)))))))
 
 
-(best)
+(defn transducer-add
 
+  "Transducing outer flow summarising inner ones.
 
-(defn basic
+  Pros: one of fastest
+  Cons: no... maybe a lack of elegance"
+
   []
-  (m/? (->> (flow-of-flows)
-            (m/eduction (map #(m/? (m/reduce + %))))
-            (m/reduce +))))
+  (let [xf (map #(m/? (m/reduce + %)))]
+    (m/? (->> (flow-of-flows)
+              (m/eduction xf)
+              (m/reduce +)))))
 
 
-(defn transducer
+(defn transducer-conj
+
+  "Transducing outer flow by flattening it
+
+  Pros: good option if you need all elements of all flows at once
+  Cons: slow, I guess overhead of aux sequences creation"
+
   []
   (let [xf (comp (map #(m/? (m/reduce conj %))) cat)]
     (m/? (->> (flow-of-flows)
@@ -57,6 +71,13 @@
 
 
 (defn reducer
+
+  "Reducing outer flow by summarising inner ones
+
+  Pros: ties for name of fastest with `transducer-add`, same logic
+        under the hood
+  Cons: looks bit more complicated"
+
   []
   (let [rf #(+ %1 (m/? (m/reduce + %2)))]
     (m/? (->> (flow-of-flows)
@@ -68,13 +89,33 @@
 
 (tests
   "best"
-  (best) := (math 100)
+  (direct-forks) := (math 100)
 
   "basic"
-  (basic) := (math 100)
+  (transducer-add) := (math 100)
 
   "transducer"
-  (transducer) := (math 100)
+  (transducer-conj) := (math 100)
 
   "reducer"
   (reducer) := (math 100))
+
+
+(time (doseq [_ (range 1000)]
+        (math 100)))           ; ~0.7 msecs (Out of competition)
+
+
+(time (doseq [_ (range 1000)]
+        (direct-forks)))       ; ~390 msecs
+
+
+(time (doseq [_ (range 1000)]
+        (transducer-add)))     ; ~95 msecs
+
+
+(time (doseq [_ (range 1000)]
+        (transducer-conj)))    ; ~208 msecs
+
+
+(time (doseq [_ (range 1000)]
+        (reducer)))            ; ~95 msecs
