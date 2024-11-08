@@ -12,7 +12,7 @@
 
 I took the liberty of doing a little research.
 
-At first I found out what result do we expect. It was like this:
+At first I found out what result do we expect (161700). It was like this:
 ![formulas-2](https://github.com/user-attachments/assets/09fb012f-f72b-4d13-b9f6-37efd2662e4b)
 
 After that I implemented and checked four different Missionary approaches to solve a task.
