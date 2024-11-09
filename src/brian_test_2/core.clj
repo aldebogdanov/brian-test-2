@@ -35,11 +35,24 @@
   "Most straightforward way.
 
   Pros: intuitive
+  Cons: slowest of all, I guess such forks have too much overhead
+        on every fork because if we add ##Inf to both forking
+        operations, it becomes even more slow"
+
+  []
+  (m/? (m/reduce + (m/ap (m/?> (m/?> (flow-of-flows)))))))
+
+
+(defn parallel-forks
+
+  "Most straightforward way.
+
+  Pros: intuitive
   Cons: slowest of all, I guess such forks not use all benefits
         of parallelism or opposite have too much overhead on every fork"
 
   []
-  (m/? (m/reduce + (m/ap (m/?> (m/?> (flow-of-flows)))))))
+  (m/? (m/reduce + (m/ap (m/?> ##Inf (m/?> ##Inf (flow-of-flows)))))))
 
 
 (defn transducer-add
@@ -106,7 +119,7 @@
 
 
 (time (doseq [_ (range 1000)]
-        (direct-forks)))       ; ~390 msecs
+        (direct-forks)))       ; ~390 msecs (~430 with ##Inf)
 
 
 (time (doseq [_ (range 1000)]
